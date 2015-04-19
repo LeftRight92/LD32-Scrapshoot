@@ -2,37 +2,44 @@
 using System.Collections;
 
 public class PlayerController : MonoBehaviour {
-	public float shipSpeed = 1.0f;
-	public float crossSpeed = 1.0f;
-	
-	public float roll = 3f;
-	public float pitch = 3f;
+
+	public float shipSpeed = 1.0f, crossSpeed = 1.0f;
+	public float turboTime;
+	public float roll = 3f, pitch = 3f;
+	public float health, maxHealth = 100, scrap = 0;
 	
 	public GameObject aimPos;
-	public bool mouseMode;
+	public GameObject[] scrapShotPrefabs;
 	
 	private Rigidbody2D rigidbody;
+	private bool turbo = false;
+	
 	// Use this for initialization
 	void Start () {
 		rigidbody = GetComponent<Rigidbody2D>();
 	}
 	
 	void Update(){
-	if(mouseMode){
 		Vector3 mousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 		mousePosition.z = 0;
 		aimPos.transform.position = mousePosition;
-	}
 	
-	if(Input.GetButton ("Fire1")){
-		foreach(Turret t in GetComponentsInChildren<Turret>()){
-			t.fireButton = true;
+		if(Input.GetButton ("Fire1")){
+			foreach(Turret t in GetComponentsInChildren<Turret>()){
+				t.fireButton = true;
+			}
+		}else{
+			foreach(Turret t in GetComponentsInChildren<Turret>()){
+				t.fireButton = false;
+			}
 		}
-	}else{
-		foreach(Turret t in GetComponentsInChildren<Turret>()){
-			t.fireButton = false;
+		if(Input.GetButtonDown ("Turbo") && scrap>=2 && !turbo){
+			StartCoroutine(Turbo());
 		}
-	}
+		if(Input.GetButtonDown ("Fire2") && scrap>=3){
+			scrap-=3;
+			Instantiate(scrapShotPrefabs[Random.Range(0,scrapShotPrefabs.Length)], transform.GetChild(1).transform.position, Quaternion.identity);
+		}
 	
 	}
 	
@@ -43,21 +50,52 @@ public class PlayerController : MonoBehaviour {
 		rigidbody.velocity = movement;
 		rigidbody.position = new Vector2(Mathf.Clamp (rigidbody.position.x, -24, 3),
 										Mathf.Clamp (rigidbody.position.y, -12, 12));
-		transform.GetChild (0).rotation = Quaternion.Euler ((rigidbody.velocity.y * -roll)+90, (rigidbody.velocity.x * -pitch)-180, 0.0f);
+		transform.GetChild (0).rotation = Quaternion.Euler ((rigidbody.velocity.y * -roll)+90, (rigidbody.velocity.x * -pitch)+180, 0.0f);
 		
 		//Rotate Turrets
 		foreach(Turret t in GetComponentsInChildren<Turret>()){
 			t.AimAtPoint(aimPos.transform.position);
 		}
-		
-		if(!mouseMode){
-			Rigidbody2D aimRigidbody = aimPos.GetComponent<Rigidbody2D>();
-			Vector3 aimMovement = new Vector3(Input.GetAxis("CrossHorizontal"),Input.GetAxis("CrossVertical"), 0) * crossSpeed;
-			aimRigidbody.velocity = aimMovement;
-			aimRigidbody.position = new Vector2(Mathf.Clamp (aimRigidbody.position.x, -25, 25),
-			                                    Mathf.Clamp (aimRigidbody.position.y, -13, 13));
-			Debug.Log ("Axis 1: (\"Horizontal\"): " + Input.GetAxis("Horizontal") + "\n" +
-			           "Axis 4: (\"CrossVert\" ): " + Input.GetAxis("CrossVertical"));
+	}
+	
+	void OnTriggerEnter2D(Collider2D other){
+		if(other.gameObject.tag == "EnemyShot"){
+			health -= 1;
+			other.GetComponent<Shot>().Kill();
+		}else if(other.gameObject.tag == "EnemyMissile"){
+			health -= 3;
+			other.GetComponent<Missile>().Kill();
+		}else if(other.gameObject.tag == "EnemyShell"){
+			health -= 3;
+			other.GetComponent<Shot>().Kill ();
+		}else if(other.gameObject.tag == "Wreck"){
+			if(!(scrap >= 10)){
+				scrap += 1;
+				Destroy(other.gameObject);
+			}
 		}
+		Debug.Log ("Health: " + health + ", Scrap: " + scrap);
+		if(health == 0){
+			StartCoroutine(Die());
+		}
+	}
+	
+	IEnumerator Die(){
+		Destroy(gameObject);
+		yield return null;
+	}
+	
+	IEnumerator Turbo(){
+		turbo = true;
+		scrap-=2;
+		foreach(Turret t in GetComponentsInChildren<Turret>()){
+			t.ToggleTurbo(true);
+		}
+		yield return new WaitForSeconds(turboTime);
+		foreach(Turret t in GetComponentsInChildren<Turret>()){
+			t.ToggleTurbo(false);
+		}
+		turbo = false;
+		yield return null;
 	}
 }

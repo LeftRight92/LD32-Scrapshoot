@@ -5,9 +5,9 @@ public class Turret : MonoBehaviour {
 
 	public bool fireButton, delay;
 	private bool firing, leftIsNext = false;
-	public float shotDelay;
-	public float shellSpeed = 3f;
-	
+	public float shotDelay, shellSpeed;
+	public float normalShotDelay, normalShellSpeed, turboShotDelay, turboShellSpeed;
+	private Vector3 aimPos;
 	private GameObject left, right;
 	
 	public GameObject shellPrefab;
@@ -17,6 +17,7 @@ public class Turret : MonoBehaviour {
 	void Start () {
 		left = transform.GetChild(0).GetChild(0).gameObject;
 		right = transform.GetChild(0).GetChild(1).gameObject;
+		ToggleTurbo(false);
 	}
 	
 	// Update is called once per frame
@@ -26,7 +27,18 @@ public class Turret : MonoBehaviour {
 		}
 	}
 	
+	public void ToggleTurbo(bool turbo){
+		if(turbo){
+			shotDelay = turboShotDelay;
+			shellSpeed = turboShellSpeed;
+		}else{
+			shotDelay = normalShotDelay;
+			shellSpeed = normalShellSpeed;
+		}
+	}
+	
 	public void AimAtPoint(Vector3 point){
+		aimPos = point;
 		transform.LookAt(point, Vector3.forward);
 	
 	}
@@ -38,8 +50,9 @@ public class Turret : MonoBehaviour {
 			GameObject current = leftIsNext? left: right;
 			
 			current.GetComponent<SpriteRenderer>().enabled = true;
-			GameObject clone = Instantiate(shellPrefab, current.transform.position, current.transform.rotation) as GameObject;
-			clone.GetComponent<Rigidbody2D>().velocity = (GameObject.FindGameObjectWithTag("Crosshair").transform.position - current.transform.position).normalized * shellSpeed;
+			GetComponent<AudioSource>().Play();
+			GameObject clone = Instantiate(shellPrefab, current.transform.position, Quaternion.Euler(0,0,90)) as GameObject;
+			clone.GetComponent<Rigidbody2D>().velocity = (aimPos - current.transform.position).normalized * shellSpeed;
 			yield return new WaitForSeconds(0.1f);
 			
 			current.GetComponent<SpriteRenderer>().enabled = false;

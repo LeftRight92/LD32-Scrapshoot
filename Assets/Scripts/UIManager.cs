@@ -18,7 +18,7 @@ public class UIManager : MonoBehaviour {
 		health.amount = player.health/player.maxHealth;
 		scrap.amount = player.scrap/10;
 		healthText.text = "Health: " + player.health + "/" + player.maxHealth;
-		scrapText.text = "Scrap: " + player.scrap + "/10";
+		scrapText.text = "Scrap: " + player.scrap + "/10 [R/RMB]";
 		scoreText.text = "Score: " + game.score;
 		waveText.text = "Wave: " + game.waveNumber;
 	}

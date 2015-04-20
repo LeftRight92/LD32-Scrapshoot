@@ -31,7 +31,6 @@ public class EnemyBomber : EnemyStrike {
 		shooting = true;
 		foreach(Transform tube in tubes){
 			Instantiate(missilePrefab, tube.position, tube.rotation);
-			GetComponent<AudioSource>().Play ();
 		}
 		yield return null;
 	}

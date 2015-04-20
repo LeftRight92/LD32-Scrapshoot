@@ -31,7 +31,6 @@ public class EnemyFighter : EnemyStrike {
 			muzzleFlash.enabled = true;
 			GameObject clone = Instantiate (bulletPrefab, transform.GetChild (0).position, transform.GetChild(0).rotation) as GameObject;
 			clone.GetComponent<Rigidbody2D>().velocity = new Vector2(-shotSpeed, 0);
-			GetComponent<AudioSource>().Play();
 			yield return new WaitForSeconds(0.1f);
 			muzzleFlash.enabled = false;
 			yield return new WaitForSeconds(shotDelay - 0.1f);

@@ -7,6 +7,7 @@ public class Missile : MonoBehaviour {
 	private float trackingStartTime;
 	private Rigidbody2D rigidbody;
 	public float trackingDelay, force;
+	public GameObject explosion;
 	
 	// Use this for initialization
 	void Start () {
@@ -32,6 +33,7 @@ public class Missile : MonoBehaviour {
 	}
 	
 	IEnumerator Die(){
+		Instantiate(explosion, transform.position, Quaternion.identity);
 		Destroy(gameObject);
 		yield return null;
 	}

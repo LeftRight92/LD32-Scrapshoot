@@ -79,8 +79,20 @@ public class GameController : MonoBehaviour {
 		StartCoroutine(WaitToClear(lane));
 	}
 	
+	public void GameOver(){
+		StartCoroutine(EndGame());
+	}
+	
+	IEnumerator EndGame(){
+		yield return new WaitForSeconds(3);
+		GlobalVars vars = GameObject.FindGameObjectWithTag("GlobalVars").GetComponent<GlobalVars>();
+		vars.score = score;
+		vars.wave = waveNumber;
+		Application.LoadLevel ("GameOver");
+	}
+	
 	IEnumerator WaitToClear(string lane){
-		yield return new WaitForSeconds(5f);
+		yield return new WaitForSeconds(3f);
 		if(lane == "top"){
 			topSlotFree = true;
 		}else if (lane == "bottom"){
@@ -93,7 +105,7 @@ public class GameController : MonoBehaviour {
 		foreach(Ship s in wave){
 			waveS += s + ", ";
 		}
-		Debug.Log (waveS);
+		//Debug.Log (waveS);
 		foreach(Ship nextItem in wave){
 			inWave = true;
 			Transform spawnPos = smallSpawns[Random.Range (0, smallSpawns.Length)];
@@ -151,30 +163,30 @@ public class GameController : MonoBehaviour {
 		}
 		waveNumber++;
 		wavePoints += increment;
-		spawnDelay -= Mathf.Max(0.1f * spawnDelay, 0.4f);
-		spawnRandomness -= 0.1f * spawnRandomness;
-		while(GameObject.FindGameObjectsWithTag("EnemyStrike").Length != 0 || GameObject.FindGameObjectsWithTag("EnemyFrigate").Length != 0){
-			if(GameObject.FindGameObjectsWithTag("EnemyStrike").Length == 0 && GameObject.FindGameObjectsWithTag("EnemyFrigate").Length != 0){
-				Transform spawnPos = smallSpawns[Random.Range (0, smallSpawns.Length)];
-				GameObject fighter1 = Instantiate(fighterPrefab, spawnPos.position + new Vector3(0,1.1f,0), spawnPos.rotation) as GameObject;
-				GameObject fighter2 = Instantiate(fighterPrefab, spawnPos.position + new Vector3(0,-1.1f,0), spawnPos.rotation) as GameObject;
-				GameObject fighter3 = Instantiate(fighterPrefab, spawnPos.position + new Vector3(2,2.4f,0), spawnPos.rotation) as GameObject;
-				GameObject fighter4 = Instantiate(fighterPrefab, spawnPos.position + new Vector3(2,-2.4f,0), spawnPos.rotation) as GameObject;
-				fighter3.GetComponent<EnemyFighter>().movingBarrier += 2;
-				fighter4.GetComponent<EnemyFighter>().movingBarrier += 2;
-				if(spawnPos.tag == "SpawnSouth"){
-					fighter1.GetComponent<EnemyFighter>().moveUp = true;
-					fighter2.GetComponent<EnemyFighter>().moveUp = true;
-					fighter3.GetComponent<EnemyFighter>().moveUp = true;
-					fighter4.GetComponent<EnemyFighter>().moveUp = true;
-				}else if(spawnPos.tag == "SpawnCentre"){
-					fighter1.GetComponent<EnemyFighter>().moveUp = true;
-					fighter3.GetComponent<EnemyFighter>().moveUp = true;
-				}
-			}
+		//spawnDelay -= Mathf.Max(0.1f * spawnDelay, 0.4f);
+		//spawnRandomness -= 0.1f * spawnRandomness;
+		while(GameObject.FindGameObjectsWithTag("EnemyStrike").Length != 0){
+//			if(GameObject.FindGameObjectsWithTag("EnemyStrike").Length == 0 && GameObject.FindGameObjectsWithTag("EnemyFrigate").Length != 0){
+//				Transform spawnPos = smallSpawns[Random.Range (0, smallSpawns.Length)];
+//				GameObject fighter1 = Instantiate(fighterPrefab, spawnPos.position + new Vector3(0,1.1f,0), spawnPos.rotation) as GameObject;
+//				GameObject fighter2 = Instantiate(fighterPrefab, spawnPos.position + new Vector3(0,-1.1f,0), spawnPos.rotation) as GameObject;
+//				GameObject fighter3 = Instantiate(fighterPrefab, spawnPos.position + new Vector3(2,2.4f,0), spawnPos.rotation) as GameObject;
+//				GameObject fighter4 = Instantiate(fighterPrefab, spawnPos.position + new Vector3(2,-2.4f,0), spawnPos.rotation) as GameObject;
+//				fighter3.GetComponent<EnemyFighter>().movingBarrier += 2;
+//				fighter4.GetComponent<EnemyFighter>().movingBarrier += 2;
+//				if(spawnPos.tag == "SpawnSouth"){
+//					fighter1.GetComponent<EnemyFighter>().moveUp = true;
+//					fighter2.GetComponent<EnemyFighter>().moveUp = true;
+//					fighter3.GetComponent<EnemyFighter>().moveUp = true;
+//					fighter4.GetComponent<EnemyFighter>().moveUp = true;
+//				}else if(spawnPos.tag == "SpawnCentre"){
+//					fighter1.GetComponent<EnemyFighter>().moveUp = true;
+//					fighter3.GetComponent<EnemyFighter>().moveUp = true;
+//				}
+//			}
 			yield return null;
 		}
-		Debug.Log ("Wave Exit");
+		//Debug.Log ("Wave Exit");
 		inWave = false;
 	}
 }

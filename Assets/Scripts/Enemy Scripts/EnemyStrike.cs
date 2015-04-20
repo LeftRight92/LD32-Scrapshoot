@@ -7,6 +7,7 @@ public class EnemyStrike : MonoBehaviour {
 	public float shootingBarrier, movingBarrier;
 	public bool moveUp;
 	public GameObject[] wrecks;
+	public GameObject explosion;
 
 	private Rigidbody2D rigidbody;
 	
@@ -31,6 +32,7 @@ public class EnemyStrike : MonoBehaviour {
 	IEnumerator Die(){
 		GameObject clone = Instantiate(wrecks[Random.Range (0,wrecks.Length)],transform.position, Quaternion.identity) as GameObject;
 		clone.GetComponent<Rigidbody2D>().velocity = rigidbody.velocity;
+		Instantiate(explosion, transform.position, Quaternion.identity);
 		Destroy(gameObject);
 		yield return null;
 	}

@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour {
 	public float roll = 3f, pitch = 3f;
 	public float health, maxHealth = 100, scrap = 0;
 	
-	public GameObject aimPos;
+	public GameObject aimPos, explosion;
 	public GameObject[] scrapShotPrefabs;
 	
 	private Rigidbody2D rigidbody;
@@ -33,11 +33,11 @@ public class PlayerController : MonoBehaviour {
 				t.fireButton = false;
 			}
 		}
-		if(Input.GetButtonDown ("Turbo") && scrap>=2 && !turbo){
+		if(Input.GetButtonDown ("Turbo") && scrap>=3 && !turbo){
 			StartCoroutine(Turbo());
 		}
-		if(Input.GetButtonDown ("Fire2") && scrap>=3){
-			scrap-=3;
+		if(Input.GetButtonDown ("Fire2") && scrap>=2){
+			scrap-=2;
 			Instantiate(scrapShotPrefabs[Random.Range(0,scrapShotPrefabs.Length)], transform.GetChild(1).transform.position, Quaternion.identity);
 		}
 	
@@ -74,20 +74,24 @@ public class PlayerController : MonoBehaviour {
 				Destroy(other.gameObject);
 			}
 		}
-		Debug.Log ("Health: " + health + ", Scrap: " + scrap);
-		if(health == 0){
+		if(health <= 0){
 			StartCoroutine(Die());
 		}
 	}
 	
 	IEnumerator Die(){
-		Destroy(gameObject);
+		GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().GameOver();
+		Instantiate(explosion, transform.position, Quaternion.identity);
+		//Destroy(gameObject);
+		transform.GetChild(0).gameObject.SetActive(false);
+		transform.GetComponent<PlayerController>().enabled = false;
+		transform.GetComponent<BoxCollider2D>().enabled = false;
 		yield return null;
 	}
 	
 	IEnumerator Turbo(){
 		turbo = true;
-		scrap-=2;
+		scrap-=3;
 		foreach(Turret t in GetComponentsInChildren<Turret>()){
 			t.ToggleTurbo(true);
 		}
